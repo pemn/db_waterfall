@@ -9,7 +9,7 @@ input_a,input_b|❎|path to data in a supported format
 groups_a,groups_b|❎|group fields for comparison
 value_a,value_b|❎|numeric field for totals
 condition|☑️|only rows that evaluate to true will be used
-output|☑️|path to save the buildup chart as png
+output|☑️|path to save the buildup chart as either a xlsx workbook or a png image
 display||show the result in a popup window
 
 ## 📓 Notes
