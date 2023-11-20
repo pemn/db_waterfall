@@ -78,13 +78,15 @@ def k2j_append(ws, vs, ks):
   cs = sum([vs[0].get(_,0) for _ in ks])
   for i in range(2,len(ks)):
     row = [None] * len(ks)
-    row[0] = ks[i]
-    row[1] = cs
+    d = None
     for j in range(2,len(ks)):
       if i == j:
-        row[j] = vs[1].get(ks[j],0) - vs[0].get(ks[j],0)
-        cs += row[j]
+        d = vs[1].get(ks[j],0) - vs[0].get(ks[j],0)
+        cs += d
+        row[j] = abs(d)
 
+    row[0] = ks[i]
+    row[1] = cs - abs(d)
 
     ws.append(row)
 
