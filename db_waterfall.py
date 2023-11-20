@@ -13,6 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import openpyxl
 from openpyxl.chart import Reference, Series, BarChart, StockChart, ScatterChart
+from openpyxl.chart.label import DataLabelList
 from collections import OrderedDict
 from openpyxl.drawing.image import Image as XLImage
 from PIL import Image
@@ -129,7 +130,10 @@ def xl_waterfall(vs, names, output, display, group = 'waterfall'):
     c0.series.append(Series(val, title_from_data=True))
   
   # first series in just a helper to make the waterfall bars "float"
+  c0.dLbls = DataLabelList()
+  c0.dLbls.showVal = True
   c0.ser[0].graphicalProperties.noFill = True
+  c0.ser[0].dLbls = DataLabelList()
 
   c0.set_categories(Reference(ws, 1, 2, 1, len(vs)+len(ks)))
 
