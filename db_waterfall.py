@@ -17,7 +17,6 @@ from openpyxl.chart.label import DataLabelList
 from openpyxl.chart.trendline import Trendline
 from collections import OrderedDict
 
-
 # Reference(worksheet=None, min_col=None, min_row=None, max_col=None, max_row=None, range_string=None)
 # BarChart(gapWidth=150, overlap=None, serLines=None, extLst=None, **kw)
 # add_data(self, data, from_rows=False, titles_from_data=False)
@@ -90,13 +89,13 @@ def k2j_append(ws, vs, ks):
     ws.append(row)
 
 
-def xl_waterfall(vs, names, output, display, group = 'waterfall'):
+def xl_waterfall(vs, names, output, display, title = ''):
   wb = openpyxl.Workbook()
   ws = wb.active
 
   k2j = OrderedDict()
-  k2j[None] = 0
-  k2j[group] = 1
+  k2j[title] = 0
+  k2j[None] = 1
   for i in range(len(vs)):
     for k,v in vs[i].items():
       if isinstance(k, tuple):
@@ -128,6 +127,7 @@ def xl_waterfall(vs, names, output, display, group = 'waterfall'):
   c0.ser[0].graphicalProperties.noFill = True
   c0.ser[0].dLbls = DataLabelList()
   c0.ser[0].trendline = Trendline(trendlineType='movingAvg', period=2)
+  c0.ser[0].trendline.showVal = False
 
   c0.set_categories(Reference(ws, 1, 2, 1, len(vs)+len(ks)))
 
@@ -160,7 +160,7 @@ def db_waterfall(input_a, groups_a, value_a, input_b, groups_b, value_b, conditi
   if output.lower().endswith('png'):
     pd_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display)
   if output.lower().endswith('xlsx'):
-    xl_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display, str.join('_',g_a))
+    xl_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display, f'{name_a} ❌ {name_b}')
 
   log("finished")
 
