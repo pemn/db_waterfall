@@ -14,11 +14,9 @@ import matplotlib.pyplot as plt
 import openpyxl
 from openpyxl.chart import Reference, Series, BarChart, StockChart, ScatterChart
 from openpyxl.chart.label import DataLabelList
+from openpyxl.chart.trendline import Trendline
 from collections import OrderedDict
-from openpyxl.drawing.image import Image as XLImage
-from PIL import Image
-from binascii import a2b_hex
-from io import BytesIO
+
 
 # Reference(worksheet=None, min_col=None, min_row=None, max_col=None, max_row=None, range_string=None)
 # BarChart(gapWidth=150, overlap=None, serLines=None, extLst=None, **kw)
@@ -120,20 +118,16 @@ def xl_waterfall(vs, names, output, display, group = 'waterfall'):
       k2j_append(ws, vs, ks)
     ws.append(row)
 
-  c0 = BarChart()
-
-  c0.grouping = "stacked"
-  c0.overlap = 100
+  c0 = BarChart(overlap=100, grouping = "stacked", dLbls = DataLabelList(showVal = True))
 
   for i in range(1,len(k2j)):
     val = Reference(ws, i+1, 1, i+1, len(vs)+len(ks))
     c0.series.append(Series(val, title_from_data=True))
   
   # first series in just a helper to make the waterfall bars "float"
-  c0.dLbls = DataLabelList()
-  c0.dLbls.showVal = True
   c0.ser[0].graphicalProperties.noFill = True
   c0.ser[0].dLbls = DataLabelList()
+  c0.ser[0].trendline = Trendline(trendlineType='movingAvg', period=2)
 
   c0.set_categories(Reference(ws, 1, 2, 1, len(vs)+len(ks)))
 
