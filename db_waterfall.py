@@ -5,7 +5,7 @@
 # more details on manual
 # v1.0 2023/11 paulo.ernesto
 '''
-usage: $0 input_a*csv,xlsx groups_a#group_a:input_a value_a:input_a input_b*csv,xlsx groups_b#group_b:input_b value_b:input_b condition output*png,xlsx display@
+usage: $0 input_a*csv,xlsx condition_a groups_a#group_a:input_a value_a:input_a input_b*csv,xlsx condition_b groups_b#group_b:input_b value_b:input_b output*png,xlsx display@
 '''
 import sys, os.path
 import numpy as np
@@ -45,7 +45,7 @@ def pd_waterfall(vs, names, output, display):
   c_1 = np.cumsum(vs[1])
 
   c_b = np.add(np.cumsum(s_1_0), np.max(c_0))
-  b_b = np.concatenate((np.subtract(c_0, vs[0]), np.subtract(c_b, np.fabs(s_1_0)), np.subtract(c_1, vs[1])))
+  b_b = np.concatenate((np.subtract(c_0, vs[0]), np.subtract(c_b, np.fmax(s_1_0,0)), np.subtract(c_1, vs[1])))
   
   s_c = np.linspace(0, 1, s_1_0.size)
   b_c = np.concatenate((s_c.take(np.arange(vs[0].size)), s_c, s_c.take(np.arange(vs[1].size))))
@@ -84,7 +84,7 @@ def k2j_append(ws, vs, ks):
         row[j] = abs(d)
 
     row[0] = ks[i]
-    row[1] = cs - abs(d)
+    row[1] = cs - max(0, d)
 
     ws.append(row)
 
@@ -138,12 +138,12 @@ def xl_waterfall(vs, names, output, display, title = ''):
     if int(display):
       os.startfile(output)
 
-def db_waterfall(input_a, groups_a, value_a, input_b, groups_b, value_b, condition, output, display):
+def db_waterfall(input_a, condition_a, groups_a, value_a, input_b, condition_b, groups_b, value_b, output, display):
   g_a = commalist(groups_a).split()
   g_b = commalist(groups_b).split()
 
-  df_a = pd_load_dataframe(input_a, condition, None, g_a + [value_a])
-  df_b = pd_load_dataframe(input_b, condition, None, g_b + [value_b])
+  df_a = pd_load_dataframe(input_a, condition_a, None, g_a + [value_a])
+  df_b = pd_load_dataframe(input_b, condition_b, None, g_b + [value_b])
   name_a = os.path.splitext(os.path.basename(input_a))[0]
   name_b = os.path.splitext(os.path.basename(input_b))[0]
 
@@ -157,10 +157,10 @@ def db_waterfall(input_a, groups_a, value_a, input_b, groups_b, value_b, conditi
   pt_a = df_a.pivot_table(value_a, g_a, None, 'sum')
   pt_b = df_b.pivot_table(value_b, g_b, None, 'sum')
 
-  if output.lower().endswith('png'):
-    pd_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display)
   if output.lower().endswith('xlsx'):
-    xl_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display, f'{name_a} ❌ {name_b}')
+    xl_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display, '%sⅹ%s' % (name_a, name_b))
+  else:
+    pd_waterfall([pt_a.squeeze(), pt_b.squeeze()], [name_a, name_b], output, display)
 
   log("finished")
 
